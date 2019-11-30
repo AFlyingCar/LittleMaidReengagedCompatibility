@@ -258,7 +258,7 @@ public class EntityMode_Gunslinger extends EntityModeBase {
 
                 owner.setMaidMode("Gunslinger");
                 if(player != null && player instanceof EntityPlayerMP) {
-                    System.out.println("Granting gunslinger advancement to player!");
+                    // System.out.println("Granting gunslinger advancement to player!");
                     AdvancementManager advancementManager = player.world.getMinecraftServer().getAdvancementManager();
                     if(advancementManager != null) {
                         Advancement advancement = advancementManager.getAdvancement(new ResourceLocation("lmrcompat", "gunslinger"));
