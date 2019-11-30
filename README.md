@@ -9,7 +9,7 @@ Note that this mod is using features from the `compatibility_features` branch of
 Read LICENSE.md
 
 ## Making developing environment
-```shell_script
+```shell script
 ./gradlew setupDecompWorkspace
 ```
 
@@ -19,4 +19,9 @@ If you would like to use an IDE, run _one_ of the following two commands:
 ```shell script
 ./gradlew idea
 ./gradlew eclipse
+```
+
+Note that testing in an IDE doesn't seem to work due to the way LMR loads models. As such, to test, reobfuscate the jar and run it in a real minecraft client:
+```shell script
+./gradlew reobfJar
 ```
