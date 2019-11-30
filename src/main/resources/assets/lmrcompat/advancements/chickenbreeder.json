@@ -1,10 +1,10 @@
 {
   "display": {
     "icon": {
-      "item": "techguns:pistol"
+      "item": "minecraft:egg"
     },
-    "title": { "translate": "achievement.gunslinger" },
-    "description": { "translate": "achievement.gunslinger.desc" }
+    "title": { "translate": "achievement.chickenbreeder" },
+    "description": { "translate": "achievement.chickenbreeder.desc" }
   },
   "parent": "lmreengaged:contract",
   "criteria": {
