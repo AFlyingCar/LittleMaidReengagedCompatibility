@@ -266,7 +266,7 @@ public class EntityMode_Gunslinger extends EntityModeBase {
                             ((EntityPlayerMP)player).getAdvancements().grantCriterion(advancement, "done");
                         }
                     }
-                    AchievementsLMRE.grantAdvancement(player, "gunslinger");
+                    // AchievementsLMRE.grantAdvancement(player, "gunslinger");
                 }
                 return true;
             }
