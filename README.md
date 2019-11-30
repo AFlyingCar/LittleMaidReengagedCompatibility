@@ -1,7 +1,9 @@
 # LittleMaidReengaged Compatibility
 
 ## What's this?
-A compatibility mod between [my fork of LittleMaidReengaged]() and various other mods.
+A compatibility mod between [my fork of LittleMaidReengaged](https://github.com/AFlyingCar/LittleMaidReengaged) and various other mods.
+
+Note that this mod is using features from the `compatibility_features` branch of the fork.
 
 ## LICENSE
 Read LICENSE.md
