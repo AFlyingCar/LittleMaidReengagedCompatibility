@@ -1,0 +1,16 @@
+{
+  "display": {
+    "icon": {
+      "item": "lmrcompat:gun"
+    },
+    "title": { "translate": "achievement.gunslinger" },
+    "description": { "translate": "achievement.gunslinger.desc" }
+  },
+  "parent": "lmreengaged:contract",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [["done"]]
+}

@@ -1,0 +1,16 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:egg"
+    },
+    "title": { "translate": "achievement.chickenbreeder" },
+    "description": { "translate": "achievement.chickenbreeder.desc" }
+  },
+  "parent": "lmreengaged:contract",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [["done"]]
+}
