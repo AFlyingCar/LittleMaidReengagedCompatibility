@@ -1,4 +1,7 @@
 achievement.gunslinger=Oh god get down she has a gun!
 achievement.gunslinger.desc=Make LittleMaid "Gunslinger" mode.
+achievement.chickenbreeder=TODO
+achievement.chickenbreeder.desc=Make LittleMaid "ChickenBreeder" mode.
 
 littleMaidMob.mode.Gunslinger=Gunslinger
+littleMaidMob.mode.ChickenBreeder=Chicken Breeder
