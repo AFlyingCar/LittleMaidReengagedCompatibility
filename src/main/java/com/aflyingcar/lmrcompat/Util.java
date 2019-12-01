@@ -1,6 +1,11 @@
 package com.aflyingcar.lmrcompat;
 
 import net.blacklab.lmr.util.FileList;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementManager;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.ResourceLocation;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,5 +62,17 @@ public class Util {
         }
 
         loadedAlready = true;
+    }
+
+    public static void grantAchievement(EntityPlayer player, String achievementName) {
+        if(player instanceof EntityPlayerMP) {
+            AdvancementManager advancementManager = player.world.getMinecraftServer().getAdvancementManager();
+            if(advancementManager != null) {
+                Advancement advancement = advancementManager.getAdvancement(new ResourceLocation("lmrcompat", achievementName));
+                if(advancement != null) {
+                    ((EntityPlayerMP)player).getAdvancements().grantCriterion(advancement, "done");
+                }
+            }
+        }
     }
 }

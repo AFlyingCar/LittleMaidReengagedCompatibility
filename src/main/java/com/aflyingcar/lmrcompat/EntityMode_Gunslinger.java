@@ -257,17 +257,9 @@ public class EntityMode_Gunslinger extends EntityModeBase {
                 // System.out.println("Mode has been changed to gunslinger!");
 
                 owner.setMaidMode("Gunslinger");
-                if(player != null && player instanceof EntityPlayerMP) {
-                    // System.out.println("Granting gunslinger advancement to player!");
-                    AdvancementManager advancementManager = player.world.getMinecraftServer().getAdvancementManager();
-                    if(advancementManager != null) {
-                        Advancement advancement = advancementManager.getAdvancement(new ResourceLocation("lmrcompat", "gunslinger"));
-                        if(advancement != null) {
-                            ((EntityPlayerMP)player).getAdvancements().grantCriterion(advancement, "done");
-                        }
-                    }
-                    // AchievementsLMRE.grantAdvancement(player, "gunslinger");
-                }
+
+                Util.grantAchievement(player, "gunslinger");
+
                 return true;
             }
         }
