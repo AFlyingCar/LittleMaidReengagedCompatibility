@@ -11,9 +11,11 @@ import net.blacklab.lmr.entity.EntityLittleMaid;
 import net.blacklab.lmr.entity.mode.EntityModeBlockBase;
 import net.blacklab.lmr.inventory.InventoryLittleMaid;
 import net.blacklab.lmr.util.EnumSound;
+import net.blacklab.lmr.util.SwingStatus;
 import net.minecraft.entity.ai.EntityAITasks;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -114,7 +116,8 @@ public class EntityMode_ChickenBreeder extends EntityModeBlockBase {
             if (litemstack.getItem() instanceof ItemSeeds) {
                 owner.setMaidMode("ChickenBreeder");
                 if (pentityplayer != null) {
-                    AchievementsLMRE.grantAdvancement(pentityplayer, "chickenbreeder");
+                    Util.grantAchievement(pentityplayer, "chickenbreeder");
+                    // AchievementsLMRE.grantAdvancement(pentityplayer, "chickenbreeder");
                 }
                 return true;
             }
@@ -129,7 +132,6 @@ public class EntityMode_ChickenBreeder extends EntityModeBlockBase {
                 owner.setBloodsuck(false);
 //			owner.aiJumpTo.setEnable(false);
                 owner.aiFollow.setEnable(false);
-                owner.aiAvoidPlayer.setEnable(false);
                 owner.aiAttack.setEnable(false);
                 owner.aiShooting.setEnable(false);
                 return true;
@@ -158,10 +160,16 @@ public class EntityMode_ChickenBreeder extends EntityModeBlockBase {
     }
 
     @Override
+    public boolean isTriggerItem(int mode, ItemStack stack) {
+        if(stack.isEmpty()) return false;
+
+        return stack.getItem() instanceof ItemSeeds;
+    }
+
+    @Override
     public boolean checkItemStack(ItemStack pItemStack) {
         return TileEntityChickenContainer.isSeed(pItemStack) || pItemStack.getItem() instanceof ItemChicken;
     }
-
 
     @Override
     public boolean isSearchBlock() {
@@ -179,18 +187,20 @@ public class EntityMode_ChickenBreeder extends EntityModeBlockBase {
         return false;
     }
 
-
-
     @Override
     public boolean shouldBlock(int pMode) {
         return owner.maidTileEntity instanceof TileEntityBreeder &&
-               (TileEntityChickenContainer.isSeed(owner.getCurrentEquippedItem()));
+                (((TileEntityBreeder)owner.maidTileEntity).func_174887_a_(0) > 0 ||
+                        (!owner.getCurrentEquippedItem().isEmpty()));
     }
 
     @Override
     public boolean checkBlock(int pMode, int px, int py, int pz) {
+        if(owner.getCurrentEquippedItem().isEmpty())
+            return false;
+
         TileEntity ltile = owner.world.getTileEntity(new BlockPos(px, py, pz));
-        if (!(ltile instanceof TileEntityFurnace)) {
+        if (!(ltile instanceof TileEntityBreeder)) {
             return false;
         }
 
@@ -208,160 +218,66 @@ public class EntityMode_ChickenBreeder extends EntityModeBlockBase {
         return false;
     }
 
+
     @Override
     public boolean executeBlock(int pMode, int px, int py, int pz) {
-        if (!owner.isEqualTile()) {
+        TileEntityBreeder breeder = (TileEntityBreeder)owner.maidTileEntity;
+
+        // getStackInSlot == func_70301_a
+        // setInventorySlotContents == func_70299_a
+        // getField == func_174887_a_
+
+        if(breeder == null || owner.world.getTileEntity(new BlockPos(px, py, pz)) != breeder)
             return false;
-        }
 
-        TileEntityBreeder tile = (TileEntityBreeder)owner.maidTileEntity;
-
-        // Flag for if this operation was a success
-        // Will be true if we took something out of the breeder or if we
         boolean lflag = false;
+        SwingStatus swingStatus = owner.getSwingStatusDominant();
 
-        if(owner.getSwingStatusDominant().canAttack()) {
-            for(int i = tile.getSizeChickenInventory(); i < tile.func_70302_i_(); ++i) {
-                ItemStack output_chickens = tile.func_70301_a(i);
-                int li = output_chickens.getCount();
+        final int chicken1Slot = 0;
+        final int chicken2Slot = 1;
+        final int seedsSlot = 2;
 
-                if(!output_chickens.isEmpty()) {
-                    // Don't bother pulling anything out if we don't have space for it
-                    if(owner.getMaidInventory().hasItemStack(ItemStack.EMPTY)) {
-                        // Get chickens out of the breeder
+        if(!breeder.func_70301_a(seedsSlot).isEmpty() || !breeder.func_70301_a(chicken1Slot).isEmpty() || !breeder.func_70301_a(chicken2Slot).isEmpty())
+            owner.setWorking(true);
 
-                        // We can successfully take something out of the chicken breeder
-                        if(owner.getMaidInventory().addItemStackToInventory(output_chickens)) {
-                            dropExpOrb(output_chickens, li - output_chickens.getCount());
-                            owner.playSound("entity.item.pickup");
-                            owner.setSwing(5, EnumSound.cookingOver, false);
-                            owner.addMaidExperience(4.2f);
-                            owner.getNextEquipItem();
-                            lflag = true;
+        int seedsPosition = owner.getMaidInventory().getInventorySlotContainItem(Items.WHEAT_SEEDS);
+        if(swingStatus.canAttack()) {
+            ItemStack breederSeedsStack = breeder.func_70301_a(seedsSlot);
 
-                            // TODO: Do we need to do this? Or should we be using a different method for grabbing this out
-                            tile.func_70299_a(i, ItemStack.EMPTY);
-                        }
+            if(breederSeedsStack.isEmpty() || breederSeedsStack.getCount() < 2) {
+                if(seedsPosition >= 0) {
+                    ItemStack maidSeedsStack = owner.getMaidInventory().func_70301_a(seedsPosition);
+
+                    if(breederSeedsStack.isEmpty()) {
+                        breeder.func_70299_a(seedsSlot, new ItemStack(Items.WHEAT_SEEDS));
+                    } else {
+                        breederSeedsStack.grow(1);
                     }
-                }
 
-                // We didn't take anything out the breeder, so now lets see about putting things in
-                if(!lflag) {
-                    // Get the 3 input slots
-                    ItemStack seed_stack = tile.func_70301_a(0);
-                    ItemStack chicken1_stack = tile.func_70301_a(1);
-                    ItemStack chicken2_stack = tile.func_70301_a(2);
-
-                    // Check to see if we can insert seeds
-                    if(seed_stack.isEmpty() || seed_stack.getCount() < 64) {
-                        // Do we actually _have_ any seeds?
-                        int seed_inventory_index = owner.getMaidInventory().getInventorySlotContainItem(ItemSeeds.class);
-                        if(seed_inventory_index > -1) {
-                            // We will want to fill up this slot with as many seeds as possible
-                            int needed_seeds = 64 - seed_stack.getCount();
-
-                            // Get our own seeds
-                            ItemStack maidSeeds = owner.getMaidInventory().getStackInSlot(seed_inventory_index);
-
-                            // Split off just the number of seeds that we need
-                            ItemStack transfer_seeds = maidSeeds.splitStack(needed_seeds);
-
-                            // Set the number of seeds
-                            transfer_seeds.setCount(transfer_seeds.getCount() + seed_stack.getCount());
-                            tile.func_70299_a(0, transfer_seeds);
-
-                            lflag = true;
-                        }
-                    } else { // Now, check if we can insert chickens
-                        // ChickenType -> [index1, index2, ...]
-                        Map<String, List<Integer>> held_chicken_types = new HashMap<>();
-                        addToHeldChickenTypes(chicken1_stack, held_chicken_types, -1);
-                        addToHeldChickenTypes(chicken2_stack, held_chicken_types, -2);
-
-                        // Iterate over manually, since we need to check each item
-                        for(int j = 0; j < owner.getMaidInventory().getSizeInventory(); ++j) {
-                            ItemStack slot = owner.getMaidInventory().getStackInSlot(j);
-                            DataChicken data = DataChicken.getDataFromStack(slot);
-
-                            if(!(data instanceof DataChickenModded))
-                                continue;
-
-                            /*
-                            // Hacky way of getting the stats of this chicken from the DataChicken, since we have
-                            //  no actual way of getting them manually
-                            String stat_string = data.getDisplaySummary().substring(data.getDisplayName().length() + 1);
-                            String growth_string = stat_string.substring(0, stat_string.indexOf("/"));
-                            String gain_string = growth_string.substring(0, growth_string.indexOf("/"));
-                            String strength_string = gain_string.substring(0, gain_string.indexOf("/"));
-
-                            // Make sure that the chicken is not perfect yet
-                            if(Integer.getInteger(growth_string) < 10 &&
-                                    Integer.getInteger(gain_string) < 10 &&
-                                    Integer.getInteger(strength_string) < 10)
-                            {
-                                addToHeldChickenTypes(slot, held_chicken_types, j);
-                            }
-                             */
-
-                            if(getDataChickenGrowth((DataChickenModded)data) < 10 &&
-                               getDataChickenGain((DataChickenModded)data) < 10 &&
-                               getDataChickenStrength((DataChickenModded)data) < 10)
-                            {
-                                addToHeldChickenTypes(slot, held_chicken_types, j);
-                            }
-                        }
-
-                        // Use -3 as the failure value, since -1 == slot 1 contents, and -2 == slot 3 contents
-                        final int FAILURE_CHICKEN_INDEX = -3;
-
-                        int to_breed1 = FAILURE_CHICKEN_INDEX;
-                        int to_breed2 = FAILURE_CHICKEN_INDEX;
-
-                        // Okay, now that we have each type, figure out which ones we can breed
-                        for(Map.Entry<String, List<Integer>> entry : held_chicken_types.entrySet()) {
-                            // Skip all lists less than 2
-                            if(entry.getValue().size() < 2) {
-                                continue;
-                            } else if(entry.getValue().size() == 2) { // Efficiency check, so we don't sort unecessarily
-                                to_breed1 = entry.getValue().get(0);
-                                to_breed2 = entry.getValue().get(1);
-                            } else {
-                                // we want to use our _best_ chickens for breeding
-                                Collections.sort(entry.getValue());
-                                to_breed1 = entry.getValue().get(entry.getValue().size());
-                                to_breed2 = entry.getValue().get(entry.getValue().size() - 1);
-                            }
-                        }
-
-                        // If we still have the failure values, then that means we failed to find chickens to breed, so
-                        //  do nothing
-                        if(to_breed1 != FAILURE_CHICKEN_INDEX && to_breed2 != FAILURE_CHICKEN_INDEX) {
-                            // Decide if we need to use the stacks that are already in there, or if we need to use one
-                            //  from our own inventory
-                            if(to_breed1 == -1)
-                                tile.func_70299_a(1, chicken1_stack);
-                            else if(to_breed1 == -2)
-                                tile.func_70299_a(1, chicken2_stack);
-                            else
-                                tile.func_70299_a(1, owner.getMaidInventory().getStackInSlot(to_breed1));
-
-                            if(to_breed2 == -1)
-                                tile.func_70299_a(1, chicken1_stack);
-                            else if(to_breed2 == -2)
-                                tile.func_70299_a(1, chicken2_stack);
-                            else
-                                tile.func_70299_a(1, owner.getMaidInventory().getStackInSlot(to_breed2));
-
-                            lflag = true;
-                        }
-                    }
+                    maidSeedsStack.shrink(1);
+                    if(maidSeedsStack.getCount() <= 0)
+                        maidSeedsStack = ItemStack.EMPTY;
+                    lflag = true;
+                } else {
+                    return false; // TODO: Should we return early??
                 }
             }
+        } else {
+            lflag = true;
+        }
+
+        if(breeder.func_174887_a_(0) > 0) {
+            owner.setWorking(true);
+            lflag = true;
         }
 
         return lflag;
     }
 
+    @Override
+    public void startBlock(int pMode) {
+        // TODO
+    }
 
     @Override
     public void resetBlock(int pMode) {
