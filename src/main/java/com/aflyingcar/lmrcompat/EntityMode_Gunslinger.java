@@ -17,6 +17,7 @@ import net.blacklab.lmr.util.TriggerSelect;
 import net.blacklab.lmr.util.helper.MaidHelper;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementManager;
+import net.minecraft.client.audio.Sound;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAILeapAtTarget;
@@ -30,6 +31,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
@@ -38,10 +40,12 @@ import net.minecraftforge.common.util.FakePlayer;
 import techguns.TGItems;
 import techguns.api.capabilities.AttackTime;
 import techguns.api.guns.GunHandType;
+import techguns.client.audio.TGSoundCategory;
 import techguns.items.guns.GenericGun;
 import techguns.items.guns.ammo.AmmoType;
 import techguns.items.guns.ammo.AmmoVariant;
 import techguns.util.InventoryUtil;
+import techguns.util.SoundUtil;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -54,6 +58,7 @@ public class EntityMode_Gunslinger extends EntityModeBase {
     private static Field AI_AttackTimeField;
     private static Field minFiretimeField;
     private static Field reloadTimeField;
+    private static Field reloadSoundField;
 
     private static final int MIN_BURST_COUNT = 2;
     private static final int MAX_BURST_COUNT = 5;
@@ -86,6 +91,16 @@ public class EntityMode_Gunslinger extends EntityModeBase {
             System.out.println("Successfully loaded minFiretime field!");
         } catch(NoSuchFieldException e) {
             System.out.println("Failed to load minFiretime field!");
+            e.printStackTrace();
+        }
+
+        try {
+            reloadSoundField = GenericGun.class.getDeclaredField("reloadsound");
+            reloadSoundField.setAccessible(true);
+
+            System.out.println("Successfully loaded reloadsound field!");
+        } catch(NoSuchFieldException e) {
+            System.out.println("Failed to load reloadsound field!");
             e.printStackTrace();
         }
     }
@@ -190,6 +205,17 @@ public class EntityMode_Gunslinger extends EntityModeBase {
         } catch(IllegalAccessException e) {
             e.printStackTrace();
             return 0;
+        }
+    }
+
+    protected SoundEvent getReloadSound(GenericGun gun) {
+        if(reloadSoundField == null) return null;
+
+        try {
+            return (SoundEvent)reloadSoundField.get(gun);
+        } catch(IllegalAccessException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -580,6 +606,10 @@ public class EntityMode_Gunslinger extends EntityModeBase {
 
                         if(i == 0) {
                             gun.reloadAmmo(gunStack, j);
+                            // owner.playSound();
+                            SoundEvent reloadSound = getReloadSound(gun);
+                            if(reloadSound != null)
+                                SoundUtil.playReloadSoundOnEntity(owner.world, owner, reloadSound, 1.0F, 1.0F, false, true, TGSoundCategory.RELOAD);
                         }
                     } else {
                         if(i == 0) {
