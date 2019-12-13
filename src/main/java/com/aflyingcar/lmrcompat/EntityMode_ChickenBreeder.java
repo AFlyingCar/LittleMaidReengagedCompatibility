@@ -325,17 +325,19 @@ public class EntityMode_ChickenBreeder extends EntityModeBlockBase {
 
             // System.out.println("Stack=(\"" + data.type + "\",num=" + stack.getCount() + ",sum=" + data.sum + ",stddev=" + data.stddev + ")");
             if(inventoryChickens.containsKey(data.type) && !inventoryChickens.get(data.type).isEmpty()) {
+                ChickenData topData = inventoryChickens.get(data.type).get(0);
+
                 // If we have this exact same stack in our inventory, then say we do have a better chicken, as we might
                 //  try to combine them later
-                int topGain = inventoryChickens.get(data.type).get(0).gain;
-                int topGrowth = inventoryChickens.get(data.type).get(0).growth;
-                int topStrength = inventoryChickens.get(data.type).get(0).strength;
+                int topGain = topData.gain;
+                int topGrowth = topData.growth;
+                int topStrength = topData.strength;
                 if(topGain == data.gain && topGrowth == data.growth && topStrength == data.strength) {
                     return true;
                 }
 
-                int topSum = inventoryChickens.get(data.type).get(0).sum;
-                double topStddev = inventoryChickens.get(data.type).get(0).stddev;
+                int topSum = topData.sum;
+                double topStddev = topData.stddev;
                 // System.out.println("IC(0)=(\"" + data.type + "\",num=" + inventoryChickens.get(data.type).get(0).stack.getCount() + ",sum=" + inventoryChickens.get(data.type).get(0).sum + ",stddev=" + inventoryChickens.get(data.type).get(0).stddev + ")");
                 return topSum > data.sum || (topSum == data.sum && topStddev > data.stddev);
             }
@@ -365,7 +367,7 @@ public class EntityMode_ChickenBreeder extends EntityModeBlockBase {
 
         for(Map.Entry<String, ArrayList<ChickenData>> entry : inventoryChickens.entrySet()) {
             // We can only insert this type of chicken if there is more than one of it
-            if((entry.getValue().size() > 0 && entry.getValue().get(0).stack.getCount() >= 2) || entry.getValue().size() > 1) {
+            if(entry.getValue().size() > 0 && (entry.getValue().get(0).stack.getCount() >= 2 || entry.getValue().size() > 1)) {
                 ChickenData data = entry.getValue().get(0);
 
                 // System.out.println(entry.getKey() + ":");
