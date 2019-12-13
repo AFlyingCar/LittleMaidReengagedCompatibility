@@ -380,12 +380,12 @@ public class EntityMode_ChickenBreeder extends EntityModeBlockBase {
                 if(!slot.isEmpty()) {
                     ChickenData slotData = createChickenDataFrom(slot, -1);
 
-                    System.out.println(slotData.type + ": (" + slotData.gain + "," + slotData.growth + "," + slotData.strength + ")");
-                    System.out.println(data.type + ": (" + data.gain + "," + data.growth + "," + data.strength + ")");
+                    // System.out.println(slotData.type + ": (" + slotData.gain + "," + slotData.growth + "," + slotData.strength + ")");
+                    // System.out.println(data.type + ": (" + data.gain + "," + data.growth + "," + data.strength + ")");
 
                     // Only combine the stacks if all attributes of a chicken are the same
                     if(slotData.type.equals(data.type) && slotData.gain == data.gain && slotData.growth == data.growth && slotData.strength == data.strength) {
-                        System.out.println("We should combine these stacks!");
+                        // System.out.println("We should combine these stacks!");
                         Util.combineStacks(slotData.stack, data.stack);
                         return true;
                     }
