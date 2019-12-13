@@ -38,6 +38,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.util.FakePlayer;
 import techguns.TGItems;
+import techguns.TGSounds;
 import techguns.api.capabilities.AttackTime;
 import techguns.api.guns.GunHandType;
 import techguns.client.audio.TGSoundCategory;
@@ -608,12 +609,22 @@ public class EntityMode_Gunslinger extends EntityModeBase {
                             gun.reloadAmmo(gunStack, j);
                             // owner.playSound();
                             SoundEvent reloadSound = getReloadSound(gun);
-                            if(reloadSound != null)
-                                SoundUtil.playReloadSoundOnEntity(owner.world, owner, reloadSound, 1.0F, 1.0F, false, true, TGSoundCategory.RELOAD);
+                            if(reloadSound == null) {
+                                reloadSound = TGSounds.PISTOL_RELOAD;
+                            }
+
+                            SoundUtil.playReloadSoundOnEntity(owner.world, owner, reloadSound, 1.0F, 1.0F, false, true, TGSoundCategory.RELOAD);
                         }
                     } else {
                         if(i == 0) {
                             gun.reloadAmmo(gunStack);
+                            SoundEvent reloadSound = getReloadSound(gun);
+                            if(reloadSound == null) {
+                                reloadSound = TGSounds.PISTOL_RELOAD;
+                            }
+
+                            // System.out.println("Playing reload sound!");
+                            SoundUtil.playReloadSoundOnEntity(owner.world, owner, reloadSound, 1.0F, 1.0F, false, true, TGSoundCategory.RELOAD);
                         }
                     }
                 }
