@@ -5,6 +5,7 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 import java.io.File;
@@ -74,5 +75,26 @@ public class Util {
                 }
             }
         }
+    }
+
+    public static ItemStack combineStacks(ItemStack item1, ItemStack item2) {
+        int count1 = item1.getCount();
+        int count2 = item2.getCount();
+
+        count1 += count2;
+
+        if(count1 > item1.getMaxStackSize()) {
+            count2 = count1 - item1.getMaxStackSize();
+            count1 = item1.getMaxStackSize();
+
+            if(count2 < 0) count2 = 0;
+        } else {
+            count2 = 0;
+        }
+
+        item1.setCount(count1);
+        item2.setCount(count2);
+
+        return item1;
     }
 }
