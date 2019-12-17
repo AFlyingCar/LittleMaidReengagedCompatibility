@@ -391,8 +391,8 @@ public class EntityMode_Gunslinger extends EntityModeBase {
                 return;
 
             // updateGuns();
-            owner.getWeaponStatus();
-
+            if(owner.world.isRemote)
+                owner.getWeaponStatus();
 
             EntityLivingBase target = owner.getAttackTarget();
             if(target == null)
