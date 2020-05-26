@@ -366,6 +366,12 @@ public class EntityMode_Gunslinger extends EntityModeBase {
             return false;
         }
 
+        // The player is only targetable if they are targetable according to Util.
+        if(entity instanceof EntityPlayer) {
+            if(Util.isPlayerTargetable((EntityPlayer)entity, this.owner))
+                return true;
+        }
+
         return !owner.getIFF(entity);
     }
 
