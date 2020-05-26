@@ -1,5 +1,6 @@
 package com.aflyingcar.lmrcompat;
 
+import net.blacklab.lmr.entity.EntityLittleMaid;
 import net.blacklab.lmr.util.FileList;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementManager;
@@ -7,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import techguns.plugins.ftbl.TeamSystemIntegration;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -96,5 +98,9 @@ public class Util {
         item2.setCount(count2);
 
         return item1;
+    }
+
+    public static boolean isPlayerTargetable(EntityPlayer player, EntityLittleMaid maid) {
+        return TeamSystemIntegration.isEnemy(player.getUniqueID(), maid.getMaidMasterUUID());
     }
 }
