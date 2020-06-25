@@ -209,19 +209,19 @@ public class EntityConvertedLittleMaid extends EntityLittleMaidVampirism impleme
 
             NBTTagCompound nbt = new NBTTagCompound();
 
-            LMRCompat.getLogger().info("Writing down our previous NBT data for transfer.");
+            LMRCompat.getLogger().debug("Writing down our previous NBT data for transfer.");
             entity.writeEntityToNBT(nbt);
 
-            LMRCompat.getLogger().info("Creating a new EntityConvertedLittleMaid");
+            LMRCompat.getLogger().debug("Creating a new EntityConvertedLittleMaid");
             EntityConvertedLittleMaid converted = new EntityConvertedLittleMaid(entity.world);
 
-            LMRCompat.getLogger().info("Reading from previous NBT data.");
+            LMRCompat.getLogger().debug("Reading from previous NBT data.");
             converted.readEntityFromNBT(nbt);
 
-            LMRCompat.getLogger().info("Giving ourselves a brand new UUID");
+            LMRCompat.getLogger().debug("Giving ourselves a brand new UUID");
             converted.setUniqueId(MathHelper.getRandomUUID());
 
-            LMRCompat.getLogger().info("Make sure the new maid has the same master as the previous one");
+            LMRCompat.getLogger().debug("Make sure the new maid has the same master as the previous one");
 
             converted.setContract(true);
             OwnableEntityHelper.setOwner(converted, entity.getOwnerId());
@@ -230,38 +230,10 @@ public class EntityConvertedLittleMaid extends EntityLittleMaidVampirism impleme
 
             BlockPos position = entity.getPosition();
             converted.setLocationAndAngles(position.getX(), position.getY(), position.getZ(), entity.rotationYaw, entity.rotationPitch);
-            LMRCompat.getLogger().info("Converted Maid is at XYZ: " + converted.getPosition());
+            LMRCompat.getLogger().debug("Converted Maid is at XYZ: " + converted.getPosition());
 
-            LMRCompat.getLogger().info("Original Maid had UUID of " + entity.getUniqueID());
-            LMRCompat.getLogger().info("Converted Maid has UUID of " + converted.getUniqueID());
-
-            /*
-            LMRCompat.getLogger().info("Attempting to pull the old switch-roo on the maid avatar");
-            // Attempt to reset the references in the maid's internal player-like object
-            EntityPlayer avatar = converted.getMaidAvatar();
-            boolean createNewAvatar = false;
-
-            if(avatar instanceof EntityLittleMaidAvatarMP) {
-                ((EntityLittleMaidAvatarMP)avatar).avatar = converted;
-            } else if(avatar instanceof EntityLittleMaidAvatarSP) {
-                ((EntityLittleMaidAvatarSP)avatar).avatar = converted;
-            } else {
-                // This should never happen, as getMaidAvatar() should only ever create an EntityLittleMaidAvatarMP or
-                //  an EntityLittleMaidAvatarSP
-                LMRCompat.getLogger().error("Cannot reset internal values of maid avatar! Must now create a new one :(");
-                createNewAvatar = true;
-            }
-
-            // If we were able to successfully reset it, then make sure both converted and entity have their own references to the entity reset
-            if(!createNewAvatar) {
-                ObfuscationReflectionHelper.setPrivateValue(EntityConvertedLittleMaid.class, converted, entity.getMaidAvatar(), "maidAvatar");
-                ObfuscationReflectionHelper.setPrivateValue(EntityConvertedLittleMaid.class, converted, true, "gottenAvatarAlready");
-
-                // Remove the ability for the original entity to have its avatar
-                ObfuscationReflectionHelper.setPrivateValue(EntityLittleMaid.class, entity, null, "maidAvatar");
-                ObfuscationReflectionHelper.setPrivateValue(EntityLittleMaid.class, entity, false, "gottenAvatarAlready");
-            }
-             */
+            LMRCompat.getLogger().debug("Original Maid had UUID of " + entity.getUniqueID());
+            LMRCompat.getLogger().debug("Converted Maid has UUID of " + converted.getUniqueID());
 
             return converted;
         }
