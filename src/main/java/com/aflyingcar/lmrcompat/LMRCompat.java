@@ -1,10 +1,13 @@
 package com.aflyingcar.lmrcompat;
 
 import com.aflyingcar.lmrcompat.plugins.vampirism.VampirismCompat;
+import com.aflyingcar.lmrcompat.proxies.CommonProxy;
 import net.minecraft.item.Item;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -24,6 +27,9 @@ public class LMRCompat {
     public static boolean hasChickens = false;
     public static boolean hasRoost = false;
     public static boolean hasVampirism = false;
+
+    @SidedProxy(clientSide = "com.aflyingcar.lmrcompat.proxies.ClientProxy", serverSide = "com.aflyingcar.lmrcompat.proxies.CommonProxy")
+    protected static CommonProxy proxy;
 
     @Mod.Instance
     private static LMRCompat instance;
@@ -61,6 +67,8 @@ public class LMRCompat {
             // TODO: Do we need to do any additional setup here?
             hasRoost = true;
         }
+
+        proxy.preInit();
     }
 
     @Mod.EventHandler
@@ -68,10 +76,13 @@ public class LMRCompat {
         if(hasVampirism) {
             VampirismCompat.init();
         }
+
+        proxy.init();
     }
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
+        proxy.postInit();
     }
 
     @Mod.EventBusSubscriber(modid = MODID)
@@ -80,6 +91,12 @@ public class LMRCompat {
         public static void onRegisterItems(RegistryEvent.Register<Item> event) {
             logger.info("Registering all items");
             LMRCompatItems.registerAll(event.getRegistry());
+        }
+
+        @SubscribeEvent
+        public static void onRegisterRecipes(RegistryEvent.Register<IRecipe> event) {
+            logger.info("Registering all recipes.");
+            LMRCompatRecipes.registerAll(event.getRegistry());
         }
     }
 }
