@@ -18,6 +18,8 @@ import net.blacklab.lmr.api.item.IItemSpecialSugar;
 import net.blacklab.lmr.client.entity.EntityLittleMaidAvatarSP;
 import net.blacklab.lmr.entity.EntityLittleMaid;
 import net.blacklab.lmr.entity.EntityLittleMaidAvatarMP;
+import net.blacklab.lmr.util.helper.CommonHelper;
+import net.blacklab.lmr.util.helper.OwnableEntityHelper;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
@@ -32,6 +34,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
@@ -50,6 +53,23 @@ public class EntityConvertedLittleMaid extends EntityLittleMaidVampirism impleme
 
     public EntityConvertedLittleMaid(World par1World) {
         super(par1World);
+
+        // Add tasks to avoid the sun and to possibly try biting other entities (but it should be low on their priority list compared with doing their job)
+
+        // Mode ID => Pair<Default Tasks, Mode-Specific Tasks>
+        for(Map.Entry<Integer, EntityAITasks[]> maidMode : maidModeList.entrySet()) {
+            // Setup sun/water avoidance AI (tasks)
+            if(maidMode.getValue()[0] != null) {
+                // Note: that these tasks are very low priority: They will prioritize doing their jobs over their own lives.
+//                maidMode.getValue()[0].addTask(34, new EntityAIRestrictSun(this));
+                // TODO: Should they try to avoid hunters?
+                //  If so, then that should probably have special rules against players and for if they are told to attack hostiles
+                //  Maybe we should make special sub-classes for these AI tasks??
+                maidMode.getValue()[0].addTask(35, new EntityAIAvoidEntity<>(this, EntityCreature.class, VampirismAPI.factionRegistry().getPredicate(getFaction(), true, true, false, false, VReference.HUNTER_FACTION), 10, 0.45F, 0.55F));
+                maidMode.getValue()[0].addTask(36, new EntityAIMoveIndoorsDay(this));
+                maidMode.getValue()[0].addTask(37, new VampireAIFleeSun(this, 0.6F, true));
+            }
+        }
     }
 
     @Override
@@ -93,34 +113,6 @@ public class EntityConvertedLittleMaid extends EntityLittleMaidVampirism impleme
             addMaidExperience(3.5f);
         }
         getMaidInventory().decrStackSize(index, Math.min(1, mode == EnumConsumeSugar.OTHER ? 1 : getExpBooster()));
-    }
-
-    @Override
-    protected void initEntityAI() {
-        super.initEntityAI();
-
-        // Add tasks to avoid the sun and to possibly try biting other entities (but it should be low on their priority list compared with doing their job)
-
-        // Mode ID => Pair<Default Tasks, Mode-Specific Tasks>
-        for(Map.Entry<Integer, EntityAITasks[]> maidMode : maidModeList.entrySet()) {
-            // Setup sun/water avoidance AI (tasks)
-            if(maidMode.getValue()[0] != null) {
-                maidMode.getValue()[0].addTask(12, new EntityAIRestrictSun(this));
-                // TODO: Should they try to avoid hunters?
-                //  If so, then that should probably have special rules against players and for if they are told to attack hostiles
-                //  Maybe we should make special sub-classes for these AI tasks??
-                maidMode.getValue()[0].addTask(13, new EntityAIAvoidEntity<>(this, EntityCreature.class, VampirismAPI.factionRegistry().getPredicate(getFaction(), true, true, false, false, VReference.HUNTER_FACTION), 10, 0.45F, 0.55F));
-                maidMode.getValue()[0].addTask(14, new EntityAIMoveIndoorsDay(this));
-                maidMode.getValue()[0].addTask(15, new VampireAIFleeSun(this, 0.6F, true));
-                maidMode.getValue()[0].addTask(16, new VampireAIBiteNearbyEntity(this));
-                maidMode.getValue()[0].addTask(17, new VampireAIMoveToBiteable(this, 0.55F));
-            }
-
-            // Setup bite-target AI (targetTasks)
-            if(maidMode.getValue()[1] != null) {
-
-            }
-        }
     }
 
     @Override
@@ -198,19 +190,53 @@ public class EntityConvertedLittleMaid extends EntityLittleMaidVampirism impleme
         return null;
     }
 
+    /**
+     * Sets the maid master entity for the given maid
+     * @param _token An unused object. You _must_ have this token in order to use this method
+     * @param maid The maid to assign a new master to
+     * @param newMaster The new master
+     */
+    public static void setMaidMasterEntity(@Nonnull ConvertingHandler.Token _token, EntityConvertedLittleMaid maid, EntityPlayer newMaster) {
+        maid.mstatMasterEntity = newMaster;
+    }
+
     public static class ConvertingHandler implements IConvertingHandler<EntityLittleMaid> {
+        private class Token { }
+
         @Override
         public IConvertedCreature<EntityLittleMaid> createFrom(EntityLittleMaid entity) {
             LMRCompat.getLogger().info("Converting a maid into a vampire!");
 
             NBTTagCompound nbt = new NBTTagCompound();
 
+            LMRCompat.getLogger().info("Writing down our previous NBT data for transfer.");
             entity.writeEntityToNBT(nbt);
 
+            LMRCompat.getLogger().info("Creating a new EntityConvertedLittleMaid");
             EntityConvertedLittleMaid converted = new EntityConvertedLittleMaid(entity.world);
+
+            LMRCompat.getLogger().info("Reading from previous NBT data.");
             converted.readEntityFromNBT(nbt);
+
+            LMRCompat.getLogger().info("Giving ourselves a brand new UUID");
             converted.setUniqueId(MathHelper.getRandomUUID());
 
+            LMRCompat.getLogger().info("Make sure the new maid has the same master as the previous one");
+
+            converted.setContract(true);
+            OwnableEntityHelper.setOwner(converted, entity.getOwnerId());
+            entity.world.setEntityState(converted, (byte)7);
+            EntityConvertedLittleMaid.setMaidMasterEntity(new Token(), converted, entity.getMaidMasterEntity());
+
+            BlockPos position = entity.getPosition();
+            converted.setLocationAndAngles(position.getX(), position.getY(), position.getZ(), entity.rotationYaw, entity.rotationPitch);
+            LMRCompat.getLogger().info("Converted Maid is at XYZ: " + converted.getPosition());
+
+            LMRCompat.getLogger().info("Original Maid had UUID of " + entity.getUniqueID());
+            LMRCompat.getLogger().info("Converted Maid has UUID of " + converted.getUniqueID());
+
+            /*
+            LMRCompat.getLogger().info("Attempting to pull the old switch-roo on the maid avatar");
             // Attempt to reset the references in the maid's internal player-like object
             EntityPlayer avatar = converted.getMaidAvatar();
             boolean createNewAvatar = false;
@@ -235,6 +261,7 @@ public class EntityConvertedLittleMaid extends EntityLittleMaidVampirism impleme
                 ObfuscationReflectionHelper.setPrivateValue(EntityLittleMaid.class, entity, null, "maidAvatar");
                 ObfuscationReflectionHelper.setPrivateValue(EntityLittleMaid.class, entity, false, "gottenAvatarAlready");
             }
+             */
 
             return converted;
         }
