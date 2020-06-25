@@ -26,6 +26,6 @@ public class VampirismCompat {
 
     public static void init() {
         VampirismAPI.entityRegistry().addBloodValue(new ResourceLocation("lmreengaged", "LittleMaid"), EntityLittleMaidVampirism.ENTITY_MAID_BLOOD);
-        VampirismAPI.entityRegistry().addConvertible(EntityLittleMaid.class, null, new EntityConvertedLittleMaid.ConvertingHandler());
+        VampirismAPI.entityRegistry().addConvertible(EntityLittleMaid.class, "lmrcompat:textures/vampirism/entity/overlay.png", new EntityConvertedLittleMaid.ConvertingHandler());
     }
 }
