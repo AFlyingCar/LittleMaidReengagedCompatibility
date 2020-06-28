@@ -1,0 +1,20 @@
+entity.EntityConvertedLittleMaid.name=変換されたリトルメイド
+
+achievement.gunslinger=Oh god get down she has a gun!
+achievement.gunslinger.desc=リトルメイドを"ガンスリンガ"モードにする
+
+achievement.chickenbreeder=鶏の繁殖は退屈です
+achievement.chickenbreeder.desc=リトルメイドを"鶏の繁殖"モードにする
+
+achievement.maidVampire=
+achievement.maidVampire.desc=リトルメイドを"吸血鬼"モードにする
+
+achievement.maidVampireHunter=何？？？
+achievement.maidVampireHunter.desc=どうやってこれを達成したのですか？
+
+littleMaidMob.mode.Gunslinger=ガンスリンガ
+littleMaidMob.mode.ChickenBreeder=チキンブリーダー
+littleMaidMob.mode.Vampire=吸血鬼
+littleMaidMob.mode.VampireHunter=
+
+item.lmrcompat.bloody_sugar.name=ブラッディシュガー
