@@ -1,0 +1,17 @@
+{
+  "display": {
+    "icon": {
+      "item": "vampirism:stake"
+    },
+    "title": { "translate": "achievement.maidVampireHunter" },
+    "description": { "translate": "achievement.maidVampireHunter.desc" },
+    "hidden": true
+  },
+  "parent": "lmreengaged:contract",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [["done"]]
+}
