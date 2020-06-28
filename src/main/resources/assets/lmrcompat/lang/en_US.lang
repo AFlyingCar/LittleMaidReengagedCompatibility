@@ -1,9 +1,20 @@
+entity.EntityConvertedLittleMaid.name=Converted LittleMaid
+
 achievement.gunslinger=Oh god get down she has a gun!
 achievement.gunslinger.desc=Make LittleMaid "Gunslinger" mode.
+
 achievement.chickenbreeder=Breeding chickens is boring.
 achievement.chickenbreeder.desc=Make LittleMaid "ChickenBreeder" mode.
 
+achievement.maidVampire=
+achievement.maidVampire.desc=Make LittleMaid into a Vampire
+
+achievement.maidVampireHunter=What, how???
+achievement.maidVampireHunter.desc=How did you even get this? I disabled this mode.
+
 littleMaidMob.mode.Gunslinger=Gunslinger
 littleMaidMob.mode.ChickenBreeder=Chicken Breeder
+littleMaidMob.mode.Vampire=Vampire
+littleMaidMob.mode.VampireHunter=
 
 item.lmrcompat.bloody_sugar.name=Bloody Sugar
