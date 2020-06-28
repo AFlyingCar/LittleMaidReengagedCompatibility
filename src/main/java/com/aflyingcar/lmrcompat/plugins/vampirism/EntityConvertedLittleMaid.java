@@ -2,6 +2,7 @@ package com.aflyingcar.lmrcompat.plugins.vampirism;
 
 import com.aflyingcar.lmrcompat.LMRCompat;
 import com.aflyingcar.lmrcompat.LMRCompatItems;
+import com.aflyingcar.lmrcompat.Util;
 import com.aflyingcar.lmrcompat.items.ItemBloodySugar;
 import de.teamlapen.vampirism.api.EnumStrength;
 import de.teamlapen.vampirism.api.VReference;
@@ -56,6 +57,7 @@ public class EntityConvertedLittleMaid extends EntityLittleMaidVampirism impleme
 
         // Add tasks to avoid the sun and to possibly try biting other entities (but it should be low on their priority list compared with doing their job)
 
+        /*
         // Mode ID => Pair<Default Tasks, Mode-Specific Tasks>
         for(Map.Entry<Integer, EntityAITasks[]> maidMode : maidModeList.entrySet()) {
             // Setup sun/water avoidance AI (tasks)
@@ -70,6 +72,7 @@ public class EntityConvertedLittleMaid extends EntityLittleMaidVampirism impleme
                 maidMode.getValue()[0].addTask(37, new VampireAIFleeSun(this, 0.6F, true));
             }
         }
+         */
     }
 
     @Override
@@ -234,6 +237,8 @@ public class EntityConvertedLittleMaid extends EntityLittleMaidVampirism impleme
 
             LMRCompat.getLogger().debug("Original Maid had UUID of " + entity.getUniqueID());
             LMRCompat.getLogger().debug("Converted Maid has UUID of " + converted.getUniqueID());
+
+            Util.grantAchievement(entity.getMaidMasterEntity(), "maidVampire");
 
             return converted;
         }
